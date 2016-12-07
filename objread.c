@@ -24,6 +24,8 @@ void lerComponentes(VERTICE * vertices, int * qtdVertices, ARESTA * arestas, int
             leFace(arestas, qtdArestas, dados);
         }
     }
+
+    fclose(entr);
 }
 
 FILE * retornaEntrada(int argc, char **argv) {
@@ -63,14 +65,14 @@ void leFace(ARESTA * arestas, int * qtdArestas, char* dados) {
 	// le o id dos vertices em um vetor temporario
 	int ti[255];
 	int cont = 0;
-	while(cont+2 < 100 && (tmp!=NULL) && (tmp[0]!=' ') && (tmp[0]!='\n') && (tmp[1]!='\n')) {
+	while(cont+2 < 100 && (tmp!=NULL) && (tmp[0] >= '0' && tmp[0] <= '9')) {
 		ti[cont] = atoi(tmp);
 		++cont;
 		tmp = strtok(NULL, " ");
 	}
+
 	// liga o primeiro e o ultimo vertice da face
 	ti[cont++] = ti[0];
-
 	int j, a, b;
 	for (int i = 0; i < cont-1; i++) {
 		// "ordena" a aresta

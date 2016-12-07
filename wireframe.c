@@ -1,36 +1,44 @@
-#include <SDL/SDL.h>
-#include <SDL/SDL_gfxPrimitives.h>
-
 #include <stdio.h>
 #include <stdlib.h>
 #include "datatypes.h"
 #include "objread.h"
 #include "perspect.h"
 
+#include <SDL/SDL.h>
+#include <SDL/SDL_gfxPrimitives.h>
+
 int main(int argc, char **argv) {
 	VERTICE * vertices;
 	// O número de vertices É MAIS DE 8000 - **realocar**
-	vertices = (VERTICE *) malloc(sizeof(VERTICE)*70000);
+	vertices = (VERTICE *) malloc(sizeof(VERTICE)*100000);
 
 	ARESTA * arestas;
 	// O número de arestas É MAIS DE 8000 - **realocar**
-	arestas = (ARESTA *) malloc(sizeof(ARESTA)*70000);	
+	arestas = (ARESTA *) malloc(sizeof(ARESTA)*1000000);	
 	
 	int qtdVertices, qtdArestas;
 	qtdVertices = qtdArestas = 0;
 
 	// De onde voce observa o objeto
 	double pontoDeReferencia[3];
-	pontoDeReferencia[0] = 100.0;
-	pontoDeReferencia[1] = 1000.0;
-	pontoDeReferencia[2] = -5000.0;
 
 	double minX, maxX, minY, maxY;
 	double escala;
 
 	// Leitura de dados
     lerComponentes(vertices, &qtdVertices, arestas, &qtdArestas, argc, argv);
+    calculaMinMax(vertices, qtdVertices, &minX, &maxX, &minY, &maxY);
+	
+	pontoDeReferencia[0] = 0;
+	pontoDeReferencia[1] = 0;
+	pontoDeReferencia[2] = (maxX+maxY)*(2);
 
+	double rotacao = pontoDeReferencia[2]*0.002;
+	/*if(pontoDeReferencia[2] < 20)
+		rotacao = 0.2;*/
+
+   	printf("%lf\n", pontoDeReferencia[2]);
+	
 	SDL_Init( SDL_INIT_VIDEO );
 	SDL_Surface* screen = SDL_SetVideoMode( WINDOW_WIDTH, WINDOW_HEIGHT, 0, SDL_HWSURFACE | SDL_DOUBLEBUF );
 	SDL_WM_SetCaption( "Visualizador 3D", 0 );
@@ -42,7 +50,7 @@ int main(int argc, char **argv) {
 		SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 0, 0, 0));
 
 		perspectivaFracaVertices(vertices, qtdVertices, pontoDeReferencia);
-		calculaMinMax(vertices, qtdVertices, &minX, &maxX, &minY, &maxY);
+		calculaMinMaxD(vertices, qtdVertices, &minX, &maxX, &minY, &maxY);
 		calculaEscala(&escala, minX, maxX, minY, maxY);
 		projetaVertices(vertices, qtdVertices, escala, &minX, &maxX, &minY, &maxY);
 
@@ -53,21 +61,33 @@ int main(int argc, char **argv) {
             	255, 255, 255, 100);
 		}
 
-        if (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT) {
-                exit = 1;
-            } else if (event.type == SDL_KEYDOWN) {
-				if (event.key.keysym.sym == 'q' || event.key.keysym.sym == SDLK_ESCAPE)
-					exit = 1;
-				else if (event.key.keysym.sym == SDLK_LEFT)
-					pontoDeReferencia[0]-=200;
-				else if (event.key.keysym.sym == SDLK_RIGHT)
-					pontoDeReferencia[0]+=200;
-				else if (event.key.keysym.sym == SDLK_UP)
-					pontoDeReferencia[1]-=200;
-				else if (event.key.keysym.sym == SDLK_DOWN)
-					pontoDeReferencia[1]+=200;
-          	}
+		SDL_PollEvent(&event);
+        switch(event.type){
+        	case SDL_QUIT: // fechar janela
+				exit = 1;
+				break;
+			case SDL_KEYDOWN:
+				switch(event.key.keysym.sym) {
+					case 'q':
+					case SDLK_ESCAPE:
+						exit = 1;
+						break;
+					case SDLK_LEFT:
+						pontoDeReferencia[0]-=rotacao;
+						break;
+					case SDLK_RIGHT:
+						pontoDeReferencia[0]+=rotacao;
+						break;
+					case SDLK_UP:
+						pontoDeReferencia[1]-=rotacao;
+						break;
+					case SDLK_DOWN:
+						pontoDeReferencia[1]+=rotacao;
+						break;
+					default:
+						break;
+           		}
+				break;
         }
 
     	SDL_Flip(screen);
