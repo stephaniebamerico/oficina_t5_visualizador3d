@@ -33,9 +33,7 @@ int main(int argc, char **argv) {
 	pontoDeReferencia[1] = 0;
 	pontoDeReferencia[2] = (maxX+maxY)*(2);
 
-	double rotacao = pontoDeReferencia[2]*0.002;
-	/*if(pontoDeReferencia[2] < 20)
-		rotacao = 0.2;*/
+	double rotacao = pontoDeReferencia[2]*0.005;
 
    	printf("%lf\n", pontoDeReferencia[2]);
 	

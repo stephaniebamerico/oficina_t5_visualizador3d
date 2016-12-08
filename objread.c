@@ -104,9 +104,17 @@ void leFace(ARESTA * arestas, int * qtdArestas, char* dados) {
 }
 
 int achaAresta(ARESTA * l, int tam, int e1, int e2) {
-	for (int i = 0; i < tam; ++i) {
-		if(l[i].v1 == e1 && l[i].v2 == e2)
-			return 1;
-	}	
-	return 0;
+	int inf = 0;
+    int sup = tam-1;
+    int meio;
+    while (inf <= sup) {
+		meio = (inf + sup)/2;
+        if (l[meio].v1 == e1 && l[meio].v2 == e2)
+        	return 1;
+		if ((l[meio].v1 < e1) || (l[meio].v1 == e1 && l[meio].v2 <= e2))
+        	sup = meio-1;
+        else
+        	inf = meio+1;
+    }
+    return 0; // não encontrado
 }
