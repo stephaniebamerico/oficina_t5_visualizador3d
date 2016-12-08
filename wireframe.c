@@ -8,25 +8,44 @@
 #include <SDL/SDL_gfxPrimitives.h>
 
 int main(int argc, char **argv) {
+
+/* =================================================== */
+/* 			 Alocação de vertices e arestas 		   */
+/* =================================================== */
 	VERTICE * vertices;
-	// O número de vertices É MAIS DE 8000 - **realocar**
-	vertices = (VERTICE *) malloc(sizeof(VERTICE)*100000);
+	vertices = (VERTICE *) malloc(sizeof(VERTICE)*1000);
+	int limiteVertices = 1000;
+
+	if(vertices == NULL) {
+    	perror("Erro ao alocar vertices");
+		exit(1);
+	}
 
 	ARESTA * arestas;
-	// O número de arestas É MAIS DE 8000 - **realocar**
-	arestas = (ARESTA *) malloc(sizeof(ARESTA)*1000000);	
-	
+	arestas = (ARESTA *) malloc(sizeof(ARESTA)*1000);	
+	int limiteArestas = 1000;
+
+	if(arestas == NULL) {
+		perror("Erro ao alocar vertices");
+		exit(1);
+	}
+
 	int qtdVertices, qtdArestas;
 	qtdVertices = qtdArestas = 0;
 
-	// De onde voce observa o objeto
+/* =================================================== */
+/* 		   Variaveis de controle de perspectiva		   */
+/* =================================================== */
 	double pontoDeReferencia[3];
-
 	double minX, maxX, minY, maxY;
 	double escala;
 
-	// Leitura de dados
-    lerComponentes(vertices, &qtdVertices, arestas, &qtdArestas, argc, argv);
+/* =================================================== */
+/* 			 Leitura dos vertices e arestas 		   */
+/* 			 Calculo dos vertices min e max 		   */
+/*    Calibra posição da câmera e rotação do objeto    */
+/* =================================================== */
+    lerComponentes(&vertices, &qtdVertices, &limiteVertices, &arestas, &qtdArestas, &limiteArestas, argc, argv);
     calculaMinMax(vertices, qtdVertices, &minX, &maxX, &minY, &maxY);
 	
 	pontoDeReferencia[0] = 0;
@@ -35,8 +54,9 @@ int main(int argc, char **argv) {
 
 	double rotacao = pontoDeReferencia[2]*0.005;
 
-   	printf("%lf\n", pontoDeReferencia[2]);
-	
+/* =================================================== */
+/* 	 	Inicia janela, cria tela e controles da SDL	   */
+/* =================================================== */
 	SDL_Init( SDL_INIT_VIDEO );
 	SDL_Surface* screen = SDL_SetVideoMode( WINDOW_WIDTH, WINDOW_HEIGHT, 0, SDL_HWSURFACE | SDL_DOUBLEBUF );
 	SDL_WM_SetCaption( "Visualizador 3D", 0 );

@@ -10,6 +10,14 @@ void perspectivaFracaVertices(VERTICE * vertices, int qtdVertices, double * ref)
 	}
 }
 
+/*void perspectivaCompleta(VERTICE * vertices, int qtdVertices, double * ref) {
+	for (int i = 0; i < qtdVertices; ++i) {
+		// (vertices[i] - ref[2]) para inverter a posicao da camera
+		vertices[i].xd = ref[0] + ref[2]*((vertices[i].x - ref[0])/(vertices[i].z - ref[2]));
+		vertices[i].yd = ref[1] + ref[2]*((vertices[i].y - ref[1])/(vertices[i].z - ref[2]));
+	}
+}*/
+
 void calculaMinMaxD(VERTICE * vertices, int qtdVertices, double * minX, double * maxX, double * minY, double * maxY) {
 	int i;
 	*minX = *maxX = vertices[0].xd;

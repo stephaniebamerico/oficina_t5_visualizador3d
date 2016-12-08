@@ -4,27 +4,35 @@
 #include "datatypes.h"
 
 void leVertice(VERTICE * v, char* dados);
-void leFace(ARESTA * arestas, int * qtdArestas, char* dados);
+void leFace(ARESTA ** arestas, int * qtdArestas, int * limArestas, char* dados);
 FILE * retornaEntrada(int argc, char **argv);
 int achaAresta(ARESTA * l, int tam, int e1, int e2);
 
-void lerComponentes(VERTICE * vertices, int * qtdVertices, ARESTA * arestas, int * qtdArestas, int argc, char **argv) {
+void lerComponentes(VERTICE ** vertices, int * qtdVertices, int * limVertices, ARESTA ** arestas, int * qtdArestas, int * limArestas, int argc, char **argv) {
     FILE * entr = retornaEntrada(argc, argv);
 
     char dados[255];
 
-    while(fgets(dados, 200, entr)>0){
+    while(fgets(dados, 255, entr)>0){
     	// vertice
         if(dados[0] == 'v' && dados[1] == ' '){
-            leVertice(&(vertices[*qtdVertices]), dados);
+        	if(*qtdVertices+10 >= *limVertices) {
+        		*vertices = (VERTICE *) realloc(*vertices, sizeof(VERTICE)*(*limVertices+1000));
+        		*limVertices += 1000;
+        		if(*vertices == NULL) {
+        			perror("Erro ao realocar vertices");
+					exit(1);
+        		}
+        	}
+
+            leVertice(&((*vertices)[*qtdVertices]), dados);
             ++(*qtdVertices);
         }
         // face
         else if (dados[0] == 'f' && dados[1] == ' '){
-            leFace(arestas, qtdArestas, dados);
+            leFace(arestas, qtdArestas, limArestas, dados);
         }
     }
-
     fclose(entr);
 }
 
@@ -56,7 +64,7 @@ void leVertice(VERTICE * v, char* dados) {
 	v->z = atof(tmp);
 }
 
-void leFace(ARESTA * arestas, int * qtdArestas, char* dados) {
+void leFace(ARESTA ** arestas, int * qtdArestas, int * limArestas, char* dados) {
 	char *tmp;
 	// ignora o 'f'
 	tmp = strtok(dados, " ");
@@ -84,20 +92,29 @@ void leFace(ARESTA * arestas, int * qtdArestas, char* dados) {
 			b = ti[i];
 		}
 
-		if(!achaAresta(arestas, *qtdArestas, a, b)){
+		if(!achaAresta(*arestas, *qtdArestas, a, b)){
 			// **conferir se ainda cabe na lista de arestas**
+			if(*qtdArestas+10 >= *limArestas) {
+        		*arestas = (ARESTA *) realloc(*arestas, sizeof(ARESTA)*(*limArestas+1000));
+       			*limArestas += 1000;
+
+        		if(*arestas == NULL) {
+        			perror("Erro ao realocar vertices");
+					exit(1);
+        		}
+        	}
 
 			// move as arestas ate achar o local correto da nova
-			for (j = *qtdArestas-1; j >= 0 && (a < arestas[j].v1 
-				|| (a == arestas[j].v1 && b < arestas[j].v2)); --j) {
-				arestas[j+1].v1 = arestas[j].v1;
-				arestas[j+1].v2 = arestas[j].v2;
+			for (j = *qtdArestas-1; j >= 0 && (a < (*arestas)[j].v1 
+				|| (a == (*arestas)[j].v1 && b < (*arestas)[j].v2)); --j) {
+				(*arestas)[j+1].v1 = (*arestas)[j].v1;
+				(*arestas)[j+1].v2 = (*arestas)[j].v2;
 			}
 			++j;
 		
 			// coloca os ids na lista de arestas
-			arestas[j].v1 = a;
-			arestas[j].v2 = b;
+			(*arestas)[j].v1 = a;
+			(*arestas)[j].v2 = b;
 			++(*qtdArestas);
 		}
 	}
