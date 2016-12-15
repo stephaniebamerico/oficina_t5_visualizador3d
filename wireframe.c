@@ -50,10 +50,9 @@ int main(int argc, char **argv) {
 	
 	pontoDeReferencia[0] = 0;
 	pontoDeReferencia[1] = 0;
-	pontoDeReferencia[2] = (maxX+maxY)*(2);
+	pontoDeReferencia[2] = 180;
 
-	double rotacao = pontoDeReferencia[2]*0.005;
-
+	double rotacao = 1;
 /* =================================================== */
 /* 	 	Inicia janela, cria tela e controles da SDL	   */
 /* =================================================== */
@@ -62,12 +61,13 @@ int main(int argc, char **argv) {
 	SDL_WM_SetCaption( "Visualizador 3D", 0 );
 
 	SDL_Event event;
-
+	int buttonDown = 0;
 	int exit = 0;
+
+	rotaciona(vertices, qtdVertices, pontoDeReferencia);
 	while (!exit) {
 		SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 0, 0, 0));
 
-		perspectivaFracaVertices(vertices, qtdVertices, pontoDeReferencia);
 		calculaMinMaxD(vertices, qtdVertices, &minX, &maxX, &minY, &maxY);
 		calculaEscala(&escala, minX, maxX, minY, maxY);
 		projetaVertices(vertices, qtdVertices, escala, &minX, &maxX, &minY, &maxY);
@@ -84,31 +84,61 @@ int main(int argc, char **argv) {
         	case SDL_QUIT: // fechar janela
 				exit = 1;
 				break;
+			case SDL_MOUSEBUTTONDOWN:
+            	buttonDown = 1;   
+            	break;
+             case SDL_MOUSEBUTTONUP:
+             	buttonDown = 0;   
+            	break;
+			case SDL_MOUSEMOTION:
+				if(buttonDown) {
+					if (event.motion.xrel < 0) {
+              			pontoDeReferencia[0]+=rotacao;
+              			rotaciona(vertices, qtdVertices, pontoDeReferencia);
+					}
+            		else if (event.motion.xrel > 0) {
+	            		pontoDeReferencia[0]-=rotacao;
+	            		rotaciona(vertices, qtdVertices, pontoDeReferencia);
+            		}
+           			
+           			if (event.motion.yrel < 0) {
+            			pontoDeReferencia[1]-=rotacao;
+            			rotaciona(vertices, qtdVertices, pontoDeReferencia);
+           			}
+            		else if (event.motion.yrel > 0) {
+            			pontoDeReferencia[1]+=rotacao;
+            			rotaciona(vertices, qtdVertices, pontoDeReferencia);
+            		}
+            	}
+				break;
 			case SDL_KEYDOWN:
 				switch(event.key.keysym.sym) {
 					case 'q':
 					case SDLK_ESCAPE:
 						exit = 1;
 						break;
-					case SDLK_LEFT:
-						pontoDeReferencia[0]-=rotacao;
-						break;
-					case SDLK_RIGHT:
-						pontoDeReferencia[0]+=rotacao;
-						break;
 					case SDLK_UP:
-						pontoDeReferencia[1]-=rotacao;
+						pontoDeReferencia[0]-=rotacao;
+						rotaciona(vertices, qtdVertices, pontoDeReferencia);
 						break;
 					case SDLK_DOWN:
+						pontoDeReferencia[0]+=rotacao;
+						rotaciona(vertices, qtdVertices, pontoDeReferencia);
+						break;
+					case SDLK_LEFT:
 						pontoDeReferencia[1]+=rotacao;
+						rotaciona(vertices, qtdVertices, pontoDeReferencia);
+						break;
+					case SDLK_RIGHT:
+						pontoDeReferencia[1]-=rotacao;
+						rotaciona(vertices, qtdVertices, pontoDeReferencia);
 						break;
 					default:
 						break;
            		}
 				break;
         }
-
-    	SDL_Flip(screen);
+        SDL_Flip(screen);
     }  
 
     // Destroi janela

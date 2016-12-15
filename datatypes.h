@@ -5,7 +5,7 @@
 
 typedef struct VERTICE {
 	double x, y, z;
-	double xd, yd;
+	double xd, yd, zd;
 } VERTICE;
 
 typedef struct ARESTA {
